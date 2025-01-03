@@ -39,9 +39,9 @@ export default function Home() {
       </div>
 
       <div className="w-1/5 h-full bg-blue-500">
+        <CamSelector devices={devices} handleDevices={handleDevices}/>
       </div>
     </div>
   );
 }
 
-{/* <CamSelector devices={devices} handleDevices={handleDevices}/> */}
