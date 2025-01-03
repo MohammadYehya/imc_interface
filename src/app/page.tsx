@@ -11,7 +11,7 @@ export default function Home() {
 
   const handleDevices = (device : MediaDeviceInfo) => {
     if (useDevices.map(device => device.label).includes(device.label))
-      setUseDevices(useDevices.filter(dev => device.label != dev.label))
+      setUseDevices(useDevices.filter(dev => device.deviceId != dev.deviceId))
     else
       setUseDevices(useDevices.concat([device]))
   }
@@ -28,11 +28,12 @@ export default function Home() {
 
   return (
     <div className="w-screen h-screen flex">
-      <div className="flex w-4/5 h-full bg-red-500 transition-all duration-500">
+      <div className={`grid grid-cols-12 grid-rows-12 w-4/5 bg-red-500 transition-all duration-500`}>
+      {/* ${useDevices.length} */}
         {
           useDevices.map((device, key) => (
-            <div className="" key={key}>
-              <Webcam height={500} audio={false} videoConstraints={{ deviceId: device.deviceId }} />
+            <div className={`col-span-1 row-span-1 bg-green-500 border-r-black border-r-8`} key={key}>
+              <Webcam className="h-full" audio={false} videoConstraints={{ deviceId: device.deviceId , aspectRatio: (screen.width/screen.height)}} />
             </div>
           ))
         }
@@ -40,6 +41,7 @@ export default function Home() {
 
       <div className="w-1/5 h-full bg-blue-500">
         <CamSelector devices={devices} handleDevices={handleDevices}/>
+        <button onClick={() => setUseDevices(useDevices.concat([devices[0]]))}>Test</button>
       </div>
     </div>
   );
