@@ -40,7 +40,7 @@ export default function Home() {
   const [modelData, setModelData] = React.useState()
   React.useEffect(() => {
     const modelAPI = async () => {
-      const res = await fetch("http://localhost:8000")
+      const res = await fetch("http://backend:8000")
       const data = await res.json()
       setModelData(data)
     }
