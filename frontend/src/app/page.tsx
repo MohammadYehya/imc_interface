@@ -37,6 +37,17 @@ export default function Home() {
     }
   };
 
+  const [modelData, setModelData] = React.useState()
+  React.useEffect(() => {
+    const modelAPI = async () => {
+      const res = await fetch("http://localhost:8000")
+      const data = await res.json()
+      setModelData(data)
+    }
+    modelAPI()
+  }, [modelData])
+
+
   React.useEffect(() => {
     navigator.mediaDevices.enumerateDevices().then(handleAvailableDevices);
   }, [handleAvailableDevices]);
@@ -84,8 +95,10 @@ export default function Home() {
             <Separator className="bg-gray-600"/>
             <ScrollArea className="h-auto text-base w-full p-2">
               {
-                ["NG"].map((text) => (<div key={text} className=" flex flex-col" >{`[${new Date().toLocaleTimeString()}]`+text}<Separator/></div>))
+                //${new Date().toLocaleTimeString()}
+                ["NG"].map((text) => (<div key={text} className=" flex flex-col" >{`[DATE]`+text}<Separator/></div>))
               }
+              <div>{JSON.stringify(modelData)}</div>
             </ScrollArea>
           </div>
           {/* <button
