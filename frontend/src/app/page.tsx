@@ -96,7 +96,7 @@ export default function Home() {
             <ScrollArea className="h-auto text-base w-full p-2">
               {
                 //${new Date().toLocaleTimeString()}
-                ["NG"].map((text) => (<div key={text} className=" flex flex-col" >{`[DATE]`+text}<Separator/></div>))
+                ["NG", "OK"].map((text) => (<div key={text} className=" flex flex-col" >{`[DATE]`+text}<Separator/></div>))
               }
               <div>{JSON.stringify(modelData)}</div>
             </ScrollArea>
