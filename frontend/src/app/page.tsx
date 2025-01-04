@@ -40,7 +40,7 @@ export default function Home() {
   const [modelData, setModelData] = React.useState()
   React.useEffect(() => {
     const modelAPI = async () => {
-      const res = await fetch("http://backend:8000")
+      const res = await fetch("https://backend:8000")
       const data = await res.json()
       setModelData(data)
     }
@@ -96,7 +96,7 @@ export default function Home() {
             <ScrollArea className="h-auto text-base w-full p-2">
               {
                 //${new Date().toLocaleTimeString()}
-                ["NG", "OK"].map((text) => (<div key={text} className=" flex flex-col" >{`[DATE]`+text}<Separator/></div>))
+                ["NG", "OK", "OK"].map((text) => (<div key={text} className=" flex flex-col" >{`[DATE]`+text}<Separator/></div>))
               }
               <div>{JSON.stringify(modelData)}</div>
             </ScrollArea>
