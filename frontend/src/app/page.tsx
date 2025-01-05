@@ -40,26 +40,17 @@ export default function Home() {
   };
 
   const [modelData, setModelData] = React.useState<{camid:string; condition:string}[]>([]);
-  const [testData , settestData] = React.useState()
   React.useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch('/api/')
-      const data = await res.json()
-      settestData(data)
+      // const res = await fetch('/api/')
+      // const data = await res.json()
+      // setModelData(data)
+      setModelData([])
+
+      // const res = await fetch('/api/logs') // For logs
     };
     fetchData();
   }, []);
-
-  //To fetch logs
-  React.useEffect(() => {
-    const fetchData = async () => {
-      // const res = await fetch('/api/logs')
-      // const data = await res.json()
-      setModelData([])
-      // setModelData(data)
-    };
-    fetchData();
-  }, [])
 
   React.useEffect(() => {
     navigator.mediaDevices.enumerateDevices().then(handleAvailableDevices);
@@ -75,7 +66,6 @@ export default function Home() {
         {useDevices.length === 0 ? (
           <div className="flex justify-center items-center text-5xl font-black">
             No Selected Camera Device!
-            <p className="text-xs">{JSON.stringify(testData)}</p>
           </div>
         ) : useDevices.length > 9 ? (
           <div className="flex justify-center items-center text-5xl font-black">
