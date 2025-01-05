@@ -6,6 +6,8 @@ import { Separator } from "@/components/ui/separator";
 import React from "react";
 import Webcam from "react-webcam";
 
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   const [useDevices, setUseDevices] = React.useState<MediaDeviceInfo[]>([]);
   const [devices, setDevices] = React.useState<MediaDeviceInfo[]>([]);
@@ -37,16 +39,27 @@ export default function Home() {
     }
   };
 
-  const [modelData, setModelData] = React.useState()
+  const [modelData, setModelData] = React.useState<{camid:string; condition:string}[]>([]);
+  const [testData , settestData] = React.useState()
   React.useEffect(() => {
-    const modelAPI = async () => {
-      const res = await fetch("https://backend:8000")
+    const fetchData = async () => {
+      const res = await fetch('/api/')
       const data = await res.json()
-      setModelData(data)
-    }
-    modelAPI()
-  }, [modelData])
+      settestData(data)
+    };
+    fetchData();
+  }, []);
 
+  //To fetch logs
+  React.useEffect(() => {
+    const fetchData = async () => {
+      // const res = await fetch('/api/logs')
+      // const data = await res.json()
+      setModelData([])
+      // setModelData(data)
+    };
+    fetchData();
+  }, [])
 
   React.useEffect(() => {
     navigator.mediaDevices.enumerateDevices().then(handleAvailableDevices);
@@ -62,6 +75,7 @@ export default function Home() {
         {useDevices.length === 0 ? (
           <div className="flex justify-center items-center text-5xl font-black">
             No Selected Camera Device!
+            <p className="text-xs">{JSON.stringify(testData)}</p>
           </div>
         ) : useDevices.length > 9 ? (
           <div className="flex justify-center items-center text-5xl font-black">
@@ -91,14 +105,23 @@ export default function Home() {
         />
         <div className="w-full h-full">
           <div className="flex flex-col items-center border h-full w-full rounded-xl my-2">
-            Logs
-            <Separator className="bg-gray-600"/>
+            Model Logs
+            <Separator className="bg-gray-600" />
             <ScrollArea className="h-auto text-base w-full p-2">
               {
                 //${new Date().toLocaleTimeString()}
-                ["NG", "OK", "OK"].map((text) => (<div key={text} className=" flex flex-col" >{`[DATE]`+text}<Separator/></div>))
+                modelData?.length === 0 ?
+                <div className="italic text-gray-400">No logs yet.</div>
+                :
+                modelData?.map(({camid, condition}) => (
+                  <div key={camid} className=" flex flex-col">
+                    {`[${new Date().toLocaleTimeString()}] ` + camid}
+                    <p className={(condition === "NG" ? `text-red-500` : `text-green-500`) + ` flex items-center font-black`}>{condition}</p>
+                    <Separator />
+                  </div>
+                ))
               }
-              <div>{JSON.stringify(modelData)}</div>
+              {/* <div>{JSON.stringify(modelData)}</div> */}
             </ScrollArea>
           </div>
           {/* <button
