@@ -18,7 +18,7 @@ import {
             {/* <DropdownMenuSeparator /> */}
             {
               devices.length === 1 && devices[0].deviceId === '' ?
-              <DropdownMenuItem>No Detected Devices</DropdownMenuItem>
+              <DropdownMenuItem>No Detected Devices (either due to insufficient permissions or no connected devices)</DropdownMenuItem>
               :
               devices.map((device, key) => <DropdownMenuItem key = {key} onClick={() => handleDevices(device)}>{ device.label }</DropdownMenuItem>)
             }
