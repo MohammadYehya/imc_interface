@@ -60,34 +60,32 @@ export default function Home() {
 
   return (
     <div className="w-screen h-screen flex text-white">
-      <div
-        className={
-          getGridSize() + ` grid w-4/5 bg-gray-900 transition-all duration-500 `
-        }
-      >
-        {/* <div className="">IMC Underbody Sealant Detection through AI</div> */}
-        {useDevices.length === 0 ? (
-          <div className="flex justify-center items-center text-5xl font-black">
-            No Selected Camera Device!
-          </div>
-        ) : useDevices.length > 9 ? (
-          <div className="flex justify-center items-center text-5xl font-black">
-            Can not display more that 9 video screens!
-          </div>
-        ) : (
-          useDevices.map((device, key) => (
-            <div className={`flex col-span-1 row-span-1 py-1`} key={key}>
-              <Webcam
-                className="h-full"
-                audio={false}
-                videoConstraints={{
-                  deviceId: device.deviceId,
-                  aspectRatio: screen.width / screen.height,
-                }}
-              />
+      <div className="w-4/5 bg-gray-900 transition-all duration-500 flex flex-col">
+        <div className="flex items-center justify-center font-black text-2xl">IMC Underbody Sealant Detection through AI</div>
+        <div className={getGridSize() + ` grid h-full`}>
+          {useDevices.length === 0 ? (
+            <div className="flex justify-center items-center text-5xl font-black">
+              No Selected Camera Device!
             </div>
-          ))
-        )}
+          ) : useDevices.length > 9 ? (
+            <div className="flex justify-center items-center text-5xl font-black">
+              Can not display more that 9 video screens!
+            </div>
+          ) : (
+            useDevices.map((device, key) => (
+              <div className={`flex col-span-1 row-span-1 py-1`} key={key}>
+                <Webcam
+                  className="h-full"
+                  audio={false}
+                  videoConstraints={{
+                    deviceId: device.deviceId,
+                    aspectRatio: screen.width / screen.height,
+                  }}
+                />
+              </div>
+            ))
+          )}
+        </div>
       </div>
 
       <div className="w-1/5 h-full flex flex-col items-center justify-between bg-gray-800 p-10 text-xl gap-y-2">
@@ -100,9 +98,7 @@ export default function Home() {
           <div className="flex flex-col items-center border h-full w-full rounded-xl my-2">
             Vehicle ID (Dummy)
             <Separator className="bg-gray-600" />
-            --
-            --
-            --
+            -- -- --
           </div>
         </div>
         <div className="w-full h-1/2">
@@ -137,7 +133,7 @@ export default function Home() {
             </ScrollArea>
           </div>
         </div>
-          {/* <button
+        {/* <button
             className="flex justify-center items-center border h-8 w-full rounded-xl hover:bg-white hover:text-black transition-all hover:scale-110"
             onClick={() => setUseDevices(useDevices.concat([devices[0]]))}
           >
