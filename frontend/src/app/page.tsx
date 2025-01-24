@@ -6,6 +6,8 @@ import { Separator } from "@/components/ui/separator";
 import React from "react";
 import Webcam from "react-webcam";
 
+import { test } from "./api/test/route";
+
 export const dynamic = "force-dynamic";
 
 export default function Home() {
@@ -41,13 +43,13 @@ export default function Home() {
   };
 
   const fetchData = async (path: string) => {
-    const res = await fetch(path);
+    const res = await test();
     const data = await res.json();
     setModelData(modelData.concat(data));
 
-    // const req = [fetch(path), fetch(path)];
-    // const res = await Promise.all(req)
-    // const data = await Promise.all(res.map(res => res.json()))
+    // const req = [path, path];
+    // const fetchpromise = req.map((i) => fetch(i).then(res => res.json()))
+    // const data = await Promise.all(fetchpromise);
     // setModelData(modelData.concat(data));
 
     // setModelData([])
@@ -108,7 +110,7 @@ export default function Home() {
           </div>
         </div>
         <div className="w-full h-1/2">
-          <div className="flex flex-col items-center border h-full w-full rounded-xl my-2" onClick={() => fetchData('api/test')}>
+          <div className="flex flex-col items-center border h-full w-full rounded-xl my-2" onClick={async () => fetchData('api/test')}>
             Model Logs (Dummy)
             <Separator className="bg-gray-600" />
             <ScrollArea className="h-auto text-base w-full p-2">
@@ -117,8 +119,8 @@ export default function Home() {
                 modelData?.length === 0 ? (
                   <div className="italic text-gray-400">No logs yet.</div>
                 ) : (
-                  modelData?.map(({ camid, condition }) => (
-                    <div key={camid || 1} className=" flex flex-col">
+                  modelData?.map(({ camid, condition }, i) => (
+                    <div key={i} className=" flex flex-col">
                       {`[${new Date().toLocaleTimeString()}] ` + camid}
                       <p
                         className={
