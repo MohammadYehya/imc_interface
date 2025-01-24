@@ -11,6 +11,7 @@ export const dynamic = "force-dynamic";
 export default function Home() {
   const [useDevices, setUseDevices] = React.useState<MediaDeviceInfo[]>([]);
   const [devices, setDevices] = React.useState<MediaDeviceInfo[]>([]);
+  const [modelData, setModelData] = React.useState<{ camid: string; condition: string }[]>([]);
 
   const handleDevices = (device: MediaDeviceInfo) => {
     if (useDevices.map((device) => device.label).includes(device.label))
@@ -39,19 +40,24 @@ export default function Home() {
     }
   };
 
-  const [modelData, setModelData] = React.useState<
-    { camid: string; condition: string }[]
-  >([]);
-  React.useEffect(() => {
-    const fetchData = async () => {
-      const res = await fetch("/api/logs");
-      const data = await res.json();
-      setModelData(data);
-      // setModelData([])
+  const fetchData = async (path: string) => {
+    const res = await fetch(path);
+    const data = await res.json();
+    setModelData(modelData.concat(data));
 
-      // const res = await fetch('/api/logs') // For logs
-    };
-    fetchData();
+    // const req = [fetch(path), fetch(path)];
+    // const res = await Promise.all(req)
+    // const data = await Promise.all(res.map(res => res.json()))
+    // setModelData(modelData.concat(data));
+
+    // setModelData([])
+
+    // const res = await fetch('/api/logs') // For logs
+  };
+
+
+  React.useEffect(() => {
+    fetchData("/api/test");
   }, []);
 
   React.useEffect(() => {
@@ -102,7 +108,7 @@ export default function Home() {
           </div>
         </div>
         <div className="w-full h-1/2">
-          <div className="flex flex-col items-center border h-full w-full rounded-xl my-2">
+          <div className="flex flex-col items-center border h-full w-full rounded-xl my-2" onClick={() => fetchData('api/test')}>
             Model Logs (Dummy)
             <Separator className="bg-gray-600" />
             <ScrollArea className="h-auto text-base w-full p-2">
@@ -112,7 +118,7 @@ export default function Home() {
                   <div className="italic text-gray-400">No logs yet.</div>
                 ) : (
                   modelData?.map(({ camid, condition }) => (
-                    <div key={camid} className=" flex flex-col">
+                    <div key={camid || 1} className=" flex flex-col">
                       {`[${new Date().toLocaleTimeString()}] ` + camid}
                       <p
                         className={

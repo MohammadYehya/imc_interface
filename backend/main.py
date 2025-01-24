@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+import time
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -12,5 +13,6 @@ app.add_middleware(
 )
 
 @app.get('/')
-def home():
-    return {'message': 'hello'}
+async def home():
+    time.sleep(2)
+    return [{'message': 'hello'}]
