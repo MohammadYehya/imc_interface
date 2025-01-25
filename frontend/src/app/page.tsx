@@ -3,10 +3,10 @@
 import { CamSelector } from "@/components/myui/camselector";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import React from "react";
+import { test } from "@/lib/utils";
 import Webcam from "react-webcam";
+import React from "react";
 
-import { test } from "./api/test/route";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +42,7 @@ export default function Home() {
     }
   };
 
-  const fetchData = async (path: string) => {
+  const fetchData = async () => {
     const res = await test();
     const data = await res.json();
     setModelData(modelData.concat(data));
@@ -59,7 +59,7 @@ export default function Home() {
 
 
   React.useEffect(() => {
-    fetchData("/api/test");
+    fetchData();
   }, []);
 
   React.useEffect(() => {
@@ -110,7 +110,7 @@ export default function Home() {
           </div>
         </div>
         <div className="w-full h-1/2">
-          <div className="flex flex-col items-center border h-full w-full rounded-xl my-2" onClick={async () => fetchData('api/test')}>
+          <div className="flex flex-col items-center border h-full w-full rounded-xl my-2" onClick={async () => fetchData()}>
             Model Logs (Dummy)
             <Separator className="bg-gray-600" />
             <ScrollArea className="h-auto text-base w-full p-2">
