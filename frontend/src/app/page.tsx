@@ -59,6 +59,9 @@ export default function Home() {
 
 
   React.useEffect(() => {
+  
+  navigator.mediaDevices.enumerateDevices().then((e) => {console.log(e)})
+    
     fetchData();
   }, []);
 
