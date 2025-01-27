@@ -59,7 +59,14 @@ export default function Home() {
 
 
   React.useEffect(() => {
-  
+  /*
+    - Need to create a way to detect scanners
+    - When scanning, the item must be displayed (can connect to web)
+    - Fix model connectivity
+    - Fix multi-threading
+    - Add rename section
+    - Add camera settings
+    */
   navigator.mediaDevices.enumerateDevices().then((e) => {console.log(e)})
     
     fetchData();
