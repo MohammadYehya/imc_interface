@@ -3,17 +3,18 @@
 import { CamSelector } from "@/components/myui/camselector";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-// import { test } from "@/lib/utils";
 import Webcam from "react-webcam";
 import React from "react";
-
 
 export const dynamic = "force-dynamic";
 
 export default function Home() {
   const [useDevices, setUseDevices] = React.useState<MediaDeviceInfo[]>([]);
   const [devices, setDevices] = React.useState<MediaDeviceInfo[]>([]);
-  const [modelData, setModelData] = React.useState<{ camid: string; condition: string }[]>([]);
+  const [modelData, setModelData] = React.useState<
+    { camid: string; condition: string }[]
+  >([]);
+  const webcamref = React.useRef<Webcam>(null);
 
   const handleDevices = (device: MediaDeviceInfo) => {
     if (useDevices.map((device) => device.label).includes(device.label))
@@ -43,7 +44,13 @@ export default function Home() {
   };
 
   const fetchData = async () => {
-    const res = await fetch("/api/predict");
+    // const res = x%2 === 0 ? await fetch("/api/predict") : await fetch("/api/test");
+    const file = webcamref.current?.getScreenshot();
+    const res = await fetch("/api/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({'image':file}),
+    });
     const data = await res.json();
     setModelData(modelData.concat(data));
 
@@ -57,7 +64,6 @@ export default function Home() {
     // const res = await fetch('/api/logs') // For logs
   };
 
-
   React.useEffect(() => {
     /*
       - Need to create a way to detect scanners
@@ -69,9 +75,10 @@ export default function Home() {
 
       - Add rename section
       - Add camera settings
-      */
-    navigator.mediaDevices.enumerateDevices().then((e) => {console.log(e)})
-    
+    */
+
+    // navigator.mediaDevices.enumerateDevices().then((e) => {console.log(e)})
+
     fetchData();
   }, []);
 
@@ -82,7 +89,9 @@ export default function Home() {
   return (
     <div className="w-screen h-screen flex text-white">
       <div className="w-4/5 bg-gray-900 transition-all duration-500 flex flex-col">
-        <div className="flex items-center justify-center font-black text-2xl">IMC Underbody Sealant Detection through AI</div>
+        <div className="flex items-center justify-center font-black text-2xl bg-blue-950">
+          IMC Underbody Sealant Detection through AI
+        </div>
         <div className={getGridSize() + ` grid h-full`}>
           {useDevices.length === 0 ? (
             <div className="flex justify-center items-center text-5xl font-black">
@@ -102,6 +111,8 @@ export default function Home() {
                     deviceId: device.deviceId,
                     aspectRatio: screen.width / screen.height,
                   }}
+                  screenshotFormat="image/jpeg"
+                  ref={webcamref}
                 />
               </div>
             ))
@@ -123,34 +134,32 @@ export default function Home() {
           </div>
         </div>
         <div className="w-full h-1/2">
-          <div className="flex flex-col items-center border h-full w-full rounded-xl my-2" onClick={async () => fetchData()}>
+          <div
+            className="flex flex-col items-center border h-full w-full rounded-xl my-2"
+            onClick={async () => fetchData()}
+          >
             Model Logs (Dummy)
             <Separator className="bg-gray-600" />
             <ScrollArea className="h-auto text-base w-full p-2">
-              {
-                //${new Date().toLocaleTimeString()}
-                modelData?.length === 0 ? (
-                  <div className="italic text-gray-400">No logs yet.</div>
-                ) : (
-                  modelData?.map(({ camid, condition }, i) => (
-                    <div key={i} className=" flex flex-col">
-                      {`[${new Date().toLocaleTimeString()}] ` + camid}
-                      <p
-                        className={
-                          (condition === "NG"
-                            ? `text-red-500`
-                            : `text-green-500`) +
-                          ` flex items-center font-black`
-                        }
-                      >
-                        {condition}
-                      </p>
-                      <Separator />
-                    </div>
-                  ))
-                )
-              }
-              {/* <div>{JSON.stringify(modelData)}</div> */}
+              {modelData?.length === 0 ? (
+                <div className="flex italic text-gray-400 justify-center">No logs yet.</div>
+              ) : (
+                modelData?.map(({ camid, condition }, i) => (
+                  <div key={i} className=" flex flex-col">
+                    {`[${new Date().toLocaleTimeString()}] ` + camid}
+                    <p
+                      className={
+                        (condition === "NG"
+                          ? `text-red-500`
+                          : `text-green-500`) + ` flex items-center font-black`
+                      }
+                    >
+                      {condition}
+                    </p>
+                    <Separator />
+                  </div>
+                ))
+              )}
             </ScrollArea>
           </div>
         </div>
