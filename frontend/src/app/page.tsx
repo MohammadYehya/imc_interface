@@ -3,6 +3,12 @@
 import { CamSelector } from "@/components/myui/camselector";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import Webcam from "react-webcam";
 import React from "react";
 
@@ -49,7 +55,7 @@ export default function Home() {
     const res = await fetch("/api/predict", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({'image':file}),
+      body: JSON.stringify({ image: file }),
     });
     const data = await res.json();
     setModelData(modelData.concat(data));
@@ -104,16 +110,23 @@ export default function Home() {
           ) : (
             useDevices.map((device, key) => (
               <div className={`flex col-span-1 row-span-1 py-1`} key={key}>
-                <Webcam
-                  className="h-full"
-                  audio={false}
-                  videoConstraints={{
-                    deviceId: device.deviceId,
-                    aspectRatio: screen.width / screen.height,
-                  }}
-                  screenshotFormat="image/jpeg"
-                  ref={webcamref}
-                />
+                <ContextMenu>
+                  <ContextMenuTrigger>
+                    <Webcam
+                      className="h-full"
+                      audio={false}
+                      videoConstraints={{
+                        deviceId: device.deviceId,
+                        aspectRatio: screen.width / screen.height,
+                      }}
+                      screenshotFormat="image/jpeg"
+                      ref={webcamref}
+                    />
+                  </ContextMenuTrigger>
+                  <ContextMenuContent>
+                    <ContextMenuItem>Rename Camera</ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
               </div>
             ))
           )}
@@ -142,7 +155,9 @@ export default function Home() {
             <Separator className="bg-gray-600" />
             <ScrollArea className="h-auto text-base w-full p-2">
               {modelData?.length === 0 ? (
-                <div className="flex italic text-gray-400 justify-center">No logs yet.</div>
+                <div className="flex italic text-gray-400 justify-center">
+                  No logs yet.
+                </div>
               ) : (
                 modelData?.map(({ camid, condition }, i) => (
                   <div key={i} className=" flex flex-col">
