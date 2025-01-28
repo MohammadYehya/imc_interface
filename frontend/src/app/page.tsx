@@ -112,6 +112,7 @@ export default function Home() {
               <div className={`flex col-span-1 row-span-1 py-1`} key={key}>
                 <ContextMenu>
                   <ContextMenuTrigger>
+                    <div className="absolute text-black font-bold m-1">{device.label}</div>
                     <Webcam
                       className="h-full"
                       audio={false}
