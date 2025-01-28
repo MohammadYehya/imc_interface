@@ -3,7 +3,7 @@
 import { CamSelector } from "@/components/myui/camselector";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { test } from "@/lib/utils";
+// import { test } from "@/lib/utils";
 import Webcam from "react-webcam";
 import React from "react";
 
@@ -43,7 +43,7 @@ export default function Home() {
   };
 
   const fetchData = async () => {
-    const res = await test();
+    const res = await fetch("/api/predict");
     const data = await res.json();
     setModelData(modelData.concat(data));
 
@@ -62,8 +62,11 @@ export default function Home() {
     /*
       - Need to create a way to detect scanners
       - When scanning, the item must be displayed (can connect to web)
+
       - Fix model connectivity
+
       - Fix multi-threading
+
       - Add rename section
       - Add camera settings
       */
