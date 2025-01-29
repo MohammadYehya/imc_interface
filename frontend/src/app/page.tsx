@@ -79,7 +79,7 @@ export default function Home() {
 
       - Fix multi-threading
 
-      - Add rename section
+      - Add rename section (Shadcn Dialog)
       - Add camera settings
     */
 
