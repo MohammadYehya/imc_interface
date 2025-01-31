@@ -1,6 +1,7 @@
 import base64
 import uuid
 from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -21,7 +22,10 @@ async def get():
 
 @app.post('/predict/{cam_id}')
 async def get(cam_id: str, file: Request):
-    file = (await file.json())['image']
+    file = (await file.json())
+    if file == {}:
+        return JSONResponse(content='Empty Image Sent!', status_code=415, media_type='application/json')
+    file = file['image']
     if "data:image" in file:
         file = file.split(",")[1]
     img = base64.b64decode(file)
