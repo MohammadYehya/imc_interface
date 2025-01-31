@@ -17,9 +17,7 @@ export const dynamic = "force-dynamic";
 export default function Home() {
   const [useDevices, setUseDevices] = React.useState<MediaDeviceInfo[]>([]);
   const [devices, setDevices] = React.useState<MediaDeviceInfo[]>([]);
-  const [modelData, setModelData] = React.useState<
-    { camid: string; condition: string }[]
-  >([]);
+  const [modelData, setModelData] = React.useState([]);
   const webcamref = React.useRef<Webcam>(null);
 
   const handleDevices = (device: MediaDeviceInfo) => {
@@ -49,43 +47,35 @@ export default function Home() {
     }
   };
 
-  const fetchData = async () => {
+  const fetchData = async (cam_id: string) => {
     // const res = x%2 === 0 ? await fetch("/api/predict") : await fetch("/api/test");
     const file = webcamref.current?.getScreenshot();
-    const res = await fetch("/api/predict", {
+    const res = await fetch(`/api/predict?cam_id=${cam_id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ image: file }),
     });
     const data = await res.json();
     setModelData(modelData.concat(data));
-
-    // const req = [path, path];
-    // const fetchpromise = req.map((i) => fetch(i).then(res => res.json()))
-    // const data = await Promise.all(fetchpromise);
-    // setModelData(modelData.concat(data));
-
-    // setModelData([])
-
-    // const res = await fetch('/api/logs') // For logs
+    // console.log(modelData[0].message)
   };
+  /*
+  - Fix model connectivity
+
+  - Need to create a way to detect scanners
+  - When scanning, the item must be displayed (can connect to web)
+
+  - Fix multi-threading
+
+  - Add image storage options (PostgreSQL or WindowsFileSystem)
+
+  - Add rename section (Shadcn Dialog)
+  - Add camera settings
+  */
 
   React.useEffect(() => {
-    /*
-      - Need to create a way to detect scanners
-      - When scanning, the item must be displayed (can connect to web)
-
-      - Fix model connectivity
-
-      - Fix multi-threading
-
-      - Add rename section (Shadcn Dialog)
-      - Add camera settings
-    */
-
     // navigator.mediaDevices.enumerateDevices().then((e) => {console.log(e)})
-
-    fetchData();
+    // fetchData();
   }, []);
 
   React.useEffect(() => {
@@ -120,6 +110,7 @@ export default function Home() {
                         deviceId: device.deviceId,
                         aspectRatio: screen.width / screen.height,
                       }}
+                      onClick={async () => fetchData(device.deviceId)}
                       screenshotFormat="image/jpeg"
                       ref={webcamref}
                     />
@@ -150,7 +141,6 @@ export default function Home() {
         <div className="w-full h-1/2">
           <div
             className="flex flex-col items-center border h-full w-full rounded-xl my-2"
-            onClick={async () => fetchData()}
           >
             Model Logs (Dummy)
             <Separator className="bg-gray-600" />
