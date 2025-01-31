@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/context-menu";
 import Webcam from "react-webcam";
 import React from "react";
+import { ErrorPopup } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -56,8 +57,10 @@ export default function Home() {
       body: JSON.stringify({ image: file }),
     });
     const data = await res.json();
-    setModelData(modelData.concat(data));
-    // console.log(modelData[0].message)
+    if (res.status == 415)
+      ErrorPopup(data);
+    else
+      setModelData(modelData.concat(data));
   };
   /*
   - Fix model connectivity
@@ -102,7 +105,9 @@ export default function Home() {
               <div className={`flex col-span-1 row-span-1 py-1`} key={key}>
                 <ContextMenu>
                   <ContextMenuTrigger>
-                    <div className="absolute text-black font-bold m-1">{device.label}</div>
+                    <div className="absolute text-black font-bold m-1">
+                      {device.label}
+                    </div>
                     <Webcam
                       className="h-full"
                       audio={false}
@@ -131,6 +136,14 @@ export default function Home() {
           devices={devices}
           handleDevices={handleDevices}
         />
+        <div
+          className="flex justify-center items-center border h-8 w-full rounded-xl hover:bg-white hover:cursor-pointer hover:text-black transition-all hover:scale-110"
+          onClick={() => {
+              fetchData("teststring")
+          }}
+        >
+          Retry
+        </div>
         <div className="w-full h-1/2">
           <div className="flex flex-col items-center border h-full w-full rounded-xl my-2">
             Vehicle ID (Dummy)
@@ -139,9 +152,7 @@ export default function Home() {
           </div>
         </div>
         <div className="w-full h-1/2">
-          <div
-            className="flex flex-col items-center border h-full w-full rounded-xl my-2"
-          >
+          <div className="flex flex-col items-center border h-full w-full rounded-xl my-2">
             Model Logs (Dummy)
             <Separator className="bg-gray-600" />
             <ScrollArea className="h-auto text-base w-full p-2">
