@@ -1,6 +1,6 @@
 import base64
 import uuid
-from fastapi import FastAPI, File, Request, UploadFile
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -19,12 +19,16 @@ async def get():
         continue
     return [{'message': 'home'}]
 
-@app.post('/predict/')
-async def get(file: Request):
+@app.post('/predict/{cam_id}')
+async def get(cam_id: str, file: Request):
     file = (await file.json())['image']
     if "data:image" in file:
         file = file.split(",")[1]
     img = base64.b64decode(file)
-    with open(f"images/{uuid.uuid4()}.jpg", "wb") as f:
-        f.write(img)
-    return [{'message': 'home'}]
+    # Do processing
+
+    # Store Images
+    # with open(f"images/{uuid.uuid4()}.jpg", "wb") as f:
+    #     f.write(img)
+    
+    return {'cam_id': cam_id, 'condition': file}
