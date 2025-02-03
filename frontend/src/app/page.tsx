@@ -15,18 +15,22 @@ import { ErrorPopup } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
+interface WebcamInfo{
+  MediaData: MediaDeviceInfo;
+  WebcamRef: React.RefObject<Webcam | null>;
+}
+
 export default function Home() {
-  const [useDevices, setUseDevices] = React.useState<MediaDeviceInfo[]>([]);
+  const [useDevices, setUseDevices] = React.useState<WebcamInfo[]>([]);
   const [devices, setDevices] = React.useState<MediaDeviceInfo[]>([]);
   const [modelData, setModelData] = React.useState([]);
-  const webcamref = React.useRef<Webcam>(null);
 
   const handleDevices = (device: MediaDeviceInfo) => {
-    if (useDevices.map((device) => device.label).includes(device.label))
+    if (useDevices.map((dev) => dev.MediaData.label).includes(device.label))
       setUseDevices(
-        useDevices.filter((dev) => device.deviceId != dev.deviceId)
+        useDevices.filter((dev) => device.deviceId != dev.MediaData.deviceId)
       );
-    else setUseDevices(useDevices.concat([device]));
+    else setUseDevices(useDevices.concat([{MediaData: device, WebcamRef: React.createRef()}]))
   };
 
   const handleAvailableDevices = React.useCallback(
@@ -48,10 +52,10 @@ export default function Home() {
     }
   };
 
-  const fetchData = async (cam_id: string) => {
+  const fetchData = async (device: WebcamInfo) => {
     // const res = x%2 === 0 ? await fetch("/api/predict") : await fetch("/api/test");
-    const file = webcamref.current?.getScreenshot();
-    const res = await fetch(`/api/predict?cam_id=${cam_id}`, {
+    const file = device.WebcamRef.current?.getScreenshot();
+    const res = await fetch(`/api/predict?cam_id=${device.MediaData.deviceId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ image: file }),
@@ -106,18 +110,18 @@ export default function Home() {
                 <ContextMenu>
                   <ContextMenuTrigger>
                     <div className="absolute text-black font-bold m-1">
-                      {device.label}
+                      {device.MediaData.label}
                     </div>
                     <Webcam
                       className="h-full"
                       audio={false}
                       videoConstraints={{
-                        deviceId: device.deviceId,
+                        deviceId: device.MediaData.deviceId,
                         aspectRatio: screen.width / screen.height,
                       }}
-                      onClick={async () => fetchData(device.deviceId)}
+                      onClick={async () => fetchData(device)}
                       screenshotFormat="image/jpeg"
-                      ref={webcamref}
+                      ref={device.WebcamRef}
                     />
                   </ContextMenuTrigger>
                   <ContextMenuContent>
@@ -139,21 +143,22 @@ export default function Home() {
         <div
           className="flex justify-center items-center border h-8 w-full rounded-xl hover:bg-white hover:cursor-pointer hover:text-black transition-all hover:scale-110"
           onClick={() => {
-              fetchData("teststring")
+              // fetchData("teststring")
+              /* Make a promise all here */
           }}
         >
           Retry
         </div>
         <div className="w-full h-1/2">
           <div className="flex flex-col items-center border h-full w-full rounded-xl my-2">
-            Vehicle ID (Dummy)
+            Vehicle ID
             <Separator className="bg-gray-600" />
             -- -- --
           </div>
         </div>
         <div className="w-full h-1/2">
           <div className="flex flex-col items-center border h-full w-full rounded-xl my-2">
-            Model Logs (Dummy)
+            Model Logs
             <Separator className="bg-gray-600" />
             <ScrollArea className="h-auto text-base w-full p-2">
               {modelData?.length === 0 ? (
@@ -161,9 +166,9 @@ export default function Home() {
                   No logs yet.
                 </div>
               ) : (
-                modelData?.map(({ camid, condition }, i) => (
+                modelData?.map(({ cam_id, condition }, i) => (
                   <div key={i} className=" flex flex-col">
-                    {`[${new Date().toLocaleTimeString()}] ` + camid}
+                    {`[${new Date().toLocaleTimeString()}] ` + cam_id}
                     <p
                       className={
                         (condition === "NG"
@@ -182,7 +187,8 @@ export default function Home() {
         </div>
         {/* <button
             className="flex justify-center items-center border h-8 w-full rounded-xl hover:bg-white hover:text-black transition-all hover:scale-110"
-            onClick={() => setUseDevices(useDevices.concat([devices[0]]))}
+            // onClick={() => setUseDevices(useDevices.concat([devices[0]]))}
+            // onClick={() => {fetch('/api/predict')}}
           >
             Test
           </button> */}
