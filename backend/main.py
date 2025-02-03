@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import uuid
 from fastapi import FastAPI, Request
@@ -16,14 +17,14 @@ app.add_middleware(
 
 @app.get('/')
 async def get():
-    for i in range(99999999):
-        continue
+    await asyncio.sleep(5)
+    print('here')
     return [{'message': 'home'}]
 
 @app.post('/predict/{cam_id}')
 async def get(cam_id: str, file: Request):
     file = (await file.json())
-    if file == {}:
+    if file == {} or file == {'image':None}:
         return JSONResponse(content='Empty Image Sent!', status_code=415, media_type='application/json')
     file = file['image']
     if "data:image" in file:
