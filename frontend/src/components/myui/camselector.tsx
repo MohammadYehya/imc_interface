@@ -12,7 +12,7 @@ import { WebcamInfo } from "@/lib/utils";
       return (
           <DropdownMenu>
           <DropdownMenuTrigger className={className}>
-          Select Available Cameras
+          Select Cameras
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             {/* <DropdownMenuLabel>Select Available Cameras</DropdownMenuLabel> */}

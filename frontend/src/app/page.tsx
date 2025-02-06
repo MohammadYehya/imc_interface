@@ -15,7 +15,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import Webcam from "react-webcam";
 import React from "react";
@@ -85,11 +84,12 @@ export default function Home() {
     else setModelData(modelData.concat(data));
   };
   /*
-  - Fix model connectivity
+  - Fix time of outputs
 
   - Need to create a way to detect scanners
-  - When scanning, the item must be displayed (can connect to web)
-
+  - When scanning, the item details must be displayed (can connect to web)
+  
+  - Add fetches for each camera
   - Fix multi-threading
 
   - Add image storage options (PostgreSQL or WindowsFileSystem)
