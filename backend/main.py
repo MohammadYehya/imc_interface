@@ -20,7 +20,7 @@ transform = transforms.Compose([
     transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
 ])
 
-model = ViTForImageClassification.from_pretrained("./model", num_labels=2)
+model = ViTForImageClassification.from_pretrained("google/vit-base-patch16-224-in21k", num_labels=2)
 try:
     model.load_state_dict(torch.load('vit_aug_sealant_detection_model.pth', map_location=device))
 except:
@@ -62,4 +62,4 @@ async def get(cam_id: str, file: Request):
     # with open(f"images/{uuid.uuid4()}.jpg", "wb") as f:
     #     f.write(img)
     
-    return {'cam_id': cam_id, 'condition': "NG" if predicted_class == 0 else "OK"}
+    return {'cam_id': cam_id, 'condition': "NG1" if predicted_class == 0 else "OK1"}
