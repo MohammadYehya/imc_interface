@@ -57,7 +57,6 @@ async def get(cam_id: str, file: Request):
     with torch.no_grad():
         outputs = model(pixel_values=input_tensor).logits
         predicted_class = torch.argmax(outputs, dim=1).item()
-    
     # Store Images
     # with open(f"images/{uuid.uuid4()}.jpg", "wb") as f:
     #     f.write(img)

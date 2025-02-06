@@ -22,18 +22,21 @@ import { ErrorPopup, WebcamInfo } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-
 export default function Home() {
   const [selectedDevice, setSelectedDevice] = React.useState<WebcamInfo>();
   const [useDevices, setUseDevices] = React.useState<WebcamInfo[]>([]);
   const [devices, setDevices] = React.useState<WebcamInfo[]>([]);
-  const [renameTo, setRenameTo] = React.useState("")
+  const [renameTo, setRenameTo] = React.useState("");
   const [isRenameOpen, setIsRenameOpen] = React.useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = React.useState(false);
-  const [modelData, setModelData] = React.useState([]);
+  const [modelData, setModelData] = React.useState<
+    { time: string; data: { cam_id: string; condition: string } }[]
+  >([]);
 
   const handleDevices = (device: MediaDeviceInfo) => {
-    if (useDevices.map((dev) => dev.MediaData.deviceId).includes(device.deviceId))
+    if (
+      useDevices.map((dev) => dev.MediaData.deviceId).includes(device.deviceId)
+    )
       setUseDevices(
         useDevices.filter((dev) => device.deviceId != dev.MediaData.deviceId)
       );
@@ -51,7 +54,17 @@ export default function Home() {
 
   const handleAvailableDevices = React.useCallback(
     (mediaDevices: MediaDeviceInfo[]) =>
-      setDevices(mediaDevices.filter(({ kind }) => kind === "videoinput").map((dev) => {return {MediaData: dev, WebcamRef: React.createRef(), CamLabel: dev.label}})),
+      setDevices(
+        mediaDevices
+          .filter(({ kind }) => kind === "videoinput")
+          .map((dev) => {
+            return {
+              MediaData: dev,
+              WebcamRef: React.createRef(),
+              CamLabel: dev.label,
+            };
+          })
+      ),
     [setDevices]
   );
 
@@ -69,7 +82,6 @@ export default function Home() {
   };
 
   const fetchData = async (device: WebcamInfo) => {
-    // const res = x%2 === 0 ? await fetch("/api/predict") : await fetch("/api/test");
     const file = device.WebcamRef.current?.getScreenshot();
     const res = await fetch(
       `/api/predict?cam_id=${device.MediaData.deviceId}`,
@@ -81,15 +93,35 @@ export default function Home() {
     );
     const data = await res.json();
     if (res.status == 415) ErrorPopup(data);
-    else setModelData(modelData.concat(data));
+    else
+      setModelData(
+        modelData?.concat([
+          { data: data, time: new Date().toLocaleTimeString() },
+        ])
+      );
+  };
+  const fetchAll = async () => {
+    Promise.all(
+      useDevices.map(async (dev) => {
+        return fetch(`/api/predict?cam_id=${dev.MediaData.deviceId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            image: dev.WebcamRef.current?.getScreenshot(),
+          }),
+        }).then((res) => res.json());
+      })
+    ).then((data) => {
+      console.log(data);
+    });
+    // .then((res:{"cam_id":string; "condition":string;}[]) => res.map((data) => {setModelData(modelData.concat(data))}))
   };
   /*
-  - Fix time of outputs
+  - Add overlay of OK & NG
 
   - Need to create a way to detect scanners
   - When scanning, the item details must be displayed (can connect to web)
   
-  - Add fetches for each camera
   - Fix multi-threading
 
   - Add image storage options (PostgreSQL or WindowsFileSystem)
@@ -116,7 +148,7 @@ export default function Home() {
                 onChange={(e) => setRenameTo(e.target.value)}
               />
               <button
-              className="rounded-xl border border-black p-1 m-1"
+                className="rounded-xl border border-black p-1 m-1"
                 onClick={(e) => {
                   e.preventDefault();
                   setUseDevices(
@@ -140,7 +172,6 @@ export default function Home() {
                     })
                   );
                   setIsRenameOpen(!isRenameOpen);
-                  
                 }}
               >
                 Rename
@@ -245,8 +276,7 @@ export default function Home() {
           <div
             className="flex justify-center items-center border h-8 w-full rounded-xl hover:bg-white hover:cursor-pointer hover:text-black transition-all hover:scale-110"
             onClick={() => {
-              // fetchData("teststring")
-              /* Make a promise all here */
+              fetchAll();
             }}
           >
             Retry
@@ -268,18 +298,18 @@ export default function Home() {
                     No logs yet.
                   </div>
                 ) : (
-                  modelData?.map(({ cam_id, condition }, i) => (
+                  modelData?.map((res, i) => (
                     <div key={i} className=" flex flex-col">
-                      {`[${new Date().toLocaleTimeString()}] ` + cam_id}
+                      {res.time + " " + res.data.cam_id}
                       <p
                         className={
-                          (condition === "NG"
+                          (res.data.condition === "NG"
                             ? `text-red-500`
                             : `text-green-500`) +
                           ` flex items-center font-black`
                         }
                       >
-                        {condition}
+                        {res.data.condition}
                       </p>
                       <Separator />
                     </div>
