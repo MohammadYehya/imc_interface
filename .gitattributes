@@ -1,5 +1,0 @@
-*.h5 filter=lfs diff=lfs merge=lfs -text
-/backend/model/flax_model.msgpack filter=lfs diff=lfs merge=lfs -text
-/backend/model/model.safetensors filter=lfs diff=lfs merge=lfs -text
-/backend/model/pytorch_model.bin filter=lfs diff=lfs merge=lfs -text
-/backend/vit_aug_sealant_detection_model.pth filter=lfs diff=lfs merge=lfs -text
