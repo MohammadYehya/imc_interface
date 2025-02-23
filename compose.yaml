@@ -9,15 +9,15 @@ services:
     ports:
       - 3000:3000
     depends_on:
-      backend:
+      aimodel_service:
         condition: service_started
     networks:
       - app_network
-  backend:
+  aimodel_service:
     build:
-      context: backend
-      dockerfile: ../Dockerfile.backend
-    image: mohammadyehya/imc_interface-backend:latest
+      context: aimodel_service
+      dockerfile: ../Dockerfile.aimodel_service
+    image: mohammadyehya/imc_interface-aimodel_service:latest
     ports:
       - 8000:8000
     networks:
