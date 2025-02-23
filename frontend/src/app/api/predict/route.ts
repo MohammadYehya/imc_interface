@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 
-const PATH = 'backend'
+const PATH = 'aimodel_service'
 
 export async function GET() {
   const res = await fetch(`http://${PATH}:8000`);
