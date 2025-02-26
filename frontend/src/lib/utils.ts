@@ -20,4 +20,5 @@ export interface WebcamInfo {
   MediaData: MediaDeviceInfo;
   WebcamRef: React.RefObject<Webcam | null>;
   CamLabel: string;
+  CanvasRef: React.RefObject<HTMLCanvasElement | null>;
 }
