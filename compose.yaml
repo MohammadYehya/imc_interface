@@ -6,6 +6,8 @@ services:
     image: mohammadyehya/imc_interface-frontend:latest
     environment:
       NODE_ENV: production
+      SERVICE1_PATH: aimodel_service
+      SERVICE2_PATH: boundingbox_service
     ports:
       - 3000:3000
     depends_on:
@@ -20,6 +22,15 @@ services:
     image: mohammadyehya/imc_interface-aimodel_service:latest
     ports:
       - 8000:8000
+    networks:
+      - app_network
+  boundingbox_service:
+    build:
+      context: boundingbox_service
+      dockerfile: ../Dockerfile.boundingbox_service
+    image: mohammadyehya/imc_interface-boundingbox_service:latest
+    ports:
+      - 8001:8000
     networks:
       - app_network
 networks:
