@@ -32,6 +32,7 @@ export default function Home() {
   const [modelData, setModelData] = React.useState<
     { time: string; data: { cam_id: string; condition: string } }[]
   >([]);
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
   const handleDevices = (device: MediaDeviceInfo) => {
     if (
@@ -101,20 +102,58 @@ export default function Home() {
       );
   };
   const fetchAll = async () => {
-    Promise.all(
-      useDevices.map(async (dev) => {
-        return fetch(`/api/predict?cam_id=${dev.MediaData.deviceId}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            image: dev.WebcamRef.current?.getScreenshot(),
-          }),
-        }).then((res) => res.json());
-      })
-    ).then((data) => {
-      console.log(data);
-    });
+    if (useDevices.length === 0) ErrorPopup("No Camera Selected!");
+    else
+      Promise.all(
+        useDevices.map(async (dev) => {
+          return fetch(`/api/predict?cam_id=${dev.MediaData.deviceId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              image: dev.WebcamRef.current?.getScreenshot(),
+            }),
+          }).then((res) => res.json());
+        })
+      ).then((data) => {
+        // console.log(data);
+        setModelData(
+          modelData?.concat(
+            data.map((data) => {
+              return { data: data, time: new Date().toLocaleTimeString() };
+            })
+          )
+        );
+      });
     // .then((res:{"cam_id":string; "condition":string;}[]) => res.map((data) => {setModelData(modelData.concat(data))}))
+  };
+
+  const test = async (device: WebcamInfo) => {
+    const file = device.WebcamRef.current?.getScreenshot();
+    const res = await fetch(
+      `/api/getboxes?cam_id=${device.MediaData.deviceId}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: file }),
+      }
+    );
+    const data = await res.json();
+    console.log(data);
+    if (res.status == 415) ErrorPopup(data);
+    else {
+      const img = new Image();
+      img.src = file!;
+      const canvas = canvasRef.current!;
+      const ctx = canvas.getContext("2d");
+      canvas.width = data[2] * img.width;
+      canvas.height = data[3] * img.height;
+      ctx!.clearRect(
+        data[0] * img.width,
+        data[1] * img.height,
+        canvas.width,
+        canvas.height
+      );
+    }
   };
   /*
   - Add overlay of OK & NG
@@ -237,10 +276,11 @@ export default function Home() {
                           deviceId: device.MediaData.deviceId,
                           aspectRatio: screen.width / screen.height,
                         }}
-                        onClick={async () => fetchData(device)}
+                        onClick={async () => {fetchData(device);test(device)}}
                         screenshotFormat="image/jpeg"
                         ref={device.WebcamRef}
                       />
+                      <canvas ref={canvasRef}></canvas>
                     </ContextMenuTrigger>
                     <ContextMenuContent>
                       <ContextMenuItem
@@ -279,7 +319,7 @@ export default function Home() {
               fetchAll();
             }}
           >
-            Retry
+            Scan
           </div>
           <div className="w-full h-1/2">
             <div className="flex flex-col items-center border h-full w-full rounded-xl my-2">
