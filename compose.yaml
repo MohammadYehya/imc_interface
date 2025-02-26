@@ -1,8 +1,8 @@
 services:
   frontend:
-    build:
-      context: frontend
-      dockerfile: ../Dockerfile.frontend
+    # build:
+    #   context: frontend
+    #   dockerfile: ../Dockerfile.frontend
     image: mohammadyehya/imc_interface-frontend:latest
     environment:
       NODE_ENV: production
@@ -16,21 +16,21 @@ services:
     networks:
       - app_network
   aimodel_service:
-    build:
-      context: aimodel_service
-      dockerfile: ../Dockerfile.aimodel_service
+    # build:
+    #   context: aimodel_service
+    #   dockerfile: ../Dockerfile.aimodel_service
     image: mohammadyehya/imc_interface-aimodel_service:latest
     ports:
       - 8000:8000
     networks:
       - app_network
   boundingbox_service:
-    build:
-      context: boundingbox_service
-      dockerfile: ../Dockerfile.boundingbox_service
+    # build:
+    #   context: boundingbox_service
+    #   dockerfile: ../Dockerfile.boundingbox_service
     image: mohammadyehya/imc_interface-boundingbox_service:latest
     ports:
-      - 8001:8000
+      - 8001:8001
     networks:
       - app_network
 networks:
