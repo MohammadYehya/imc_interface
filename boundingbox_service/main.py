@@ -33,4 +33,4 @@ async def get(cam_id: str, file: Request):
     img = base64.b64decode(file)
     img = Image.open(io.BytesIO(img))
     results = model(img, verbose=False)
-    return [i.tolist() for i in results[0].boxes.xywhn]
+    return [i.tolist() for i in results[0].boxes.xyxyn]
