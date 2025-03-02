@@ -136,29 +136,25 @@ export default function Home() {
     console.log(data);
     if (res.status == 415) ErrorPopup(data);
     else {
-      // const img = new Image();
-      // img.src = file!;
-      // await img.decode();
       const canvas = device.CanvasRef.current!;
-      console.log(canvas.width, canvas.height);
+      canvas.width=device.WebcamRef.current!.video!.clientWidth
+      canvas.height=device.WebcamRef.current!.video!.clientHeight
       const ctx = canvas.getContext("2d");
       ctx!.clearRect(0, 0, canvas.width, canvas.height);
       data.map((data: number[]) => {
-        // ctx!.moveTo(0,0);
-        // ctx!.lineTo(300,150);
         ctx!.beginPath();
         ctx!.moveTo(data[0] * canvas.width, data[1] * canvas.height);
         ctx!.lineTo(
-          data[0] * canvas.width + data[2] * canvas.width,
+          data[2] * canvas.width,
           data[1] * canvas.height
         );
         ctx!.lineTo(
-          data[0] * canvas.width + data[2] * canvas.width,
-          data[1] * canvas.height + data[3] * canvas.height
+          data[2] * canvas.width,
+          data[3] * canvas.height
         );
         ctx!.lineTo(
           data[0] * canvas.width,
-          data[1] * canvas.height + data[3] * canvas.height
+          data[3] * canvas.height
         );
         ctx!.lineTo(data[0] * canvas.width, data[1] * canvas.height);
         ctx!.stroke();
@@ -263,7 +259,7 @@ export default function Home() {
           <div className="flex items-center justify-center font-black text-2xl bg-blue-950">
             IMC Underbody Sealant Detection through AI
           </div>
-          <div className={getGridSize() + ` grid h-full`}>
+          <div className={getGridSize() + ` grid h-[calc(100%-32px)]`}>
             {useDevices.length === 0 ? (
               <div className="flex justify-center items-center text-5xl font-black">
                 No Selected Camera Device!
@@ -277,11 +273,17 @@ export default function Home() {
                 <div className={`flex col-span-1 row-span-1 py-1`} key={key}>
                   <ContextMenu modal={false}>
                     <ContextMenuTrigger>
-                      <div className="absolute text-black font-bold m-1">
+                      <div className="absolute text-black font-bold m-1 z-50">
                         {device.CamLabel}
                       </div>
+                      <canvas
+                        ref={device.CanvasRef}
+                        className="absolute bg-transparent"
+                        width={0}
+                        height={0}
+                      />
                       <Webcam
-                        className="h-full"
+                        className="h-full w-full"
                         audio={false}
                         videoConstraints={{
                           deviceId: device.MediaData.deviceId,
@@ -291,10 +293,6 @@ export default function Home() {
                         screenshotFormat="image/jpeg"
                         ref={device.WebcamRef}
                       />
-                      <canvas
-                        ref={device.CanvasRef}
-                        className="absolute bg-slate-500"
-                      ></canvas>
                     </ContextMenuTrigger>
                     <ContextMenuContent>
                       <ContextMenuItem
@@ -379,13 +377,13 @@ export default function Home() {
               </ScrollArea>
             </div>
           </div>
-          {/* <button
+          <button
             className="flex justify-center items-center border h-8 w-full rounded-xl hover:bg-white hover:text-black transition-all hover:scale-110"
-            // onClick={() => setUseDevices(useDevices.concat([devices[0]]))}
+            onClick={() => setUseDevices(useDevices.concat([devices[0]]))}
             // onClick={() => {fetch('/api/predict')}}
           >
             Test
-          </button> */}
+          </button>
         </div>
       </div>
     </>
