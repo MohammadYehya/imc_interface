@@ -32,24 +32,19 @@ export default function Home() {
   const [modelData, setModelData] = React.useState<
     { time: string; data: { cam_id: string; condition: string } }[]
   >([]);
-  const handleDevices = (device: MediaDeviceInfo) => {
+
+  const handleDevices = (device: WebcamInfo) => {
     if (
-      useDevices.map((dev) => dev.MediaData.deviceId).includes(device.deviceId)
+      useDevices
+        .map((dev) => dev.MediaData.deviceId)
+        .includes(device.MediaData.deviceId)
     )
       setUseDevices(
-        useDevices.filter((dev) => device.deviceId != dev.MediaData.deviceId)
+        useDevices.filter(
+          (dev) => device.MediaData.deviceId != dev.MediaData.deviceId
+        )
       );
-    else
-      setUseDevices(
-        useDevices.concat([
-          {
-            MediaData: device,
-            WebcamRef: React.createRef(),
-            CamLabel: device.label,
-            CanvasRef: React.createRef(),
-          },
-        ])
-      );
+    else setUseDevices(useDevices.concat([device]));
   };
 
   const handleAvailableDevices = React.useCallback(
@@ -122,6 +117,23 @@ export default function Home() {
       });
   };
 
+  const drawboxes = async (device: WebcamInfo, data: number[][]) => {
+    const canvas = device.CanvasRef.current!;
+      canvas.width = device.WebcamRef.current!.video!.clientWidth;
+      canvas.height = device.WebcamRef.current!.video!.clientHeight;
+      const ctx = canvas.getContext("2d");
+      ctx!.clearRect(0, 0, canvas.width, canvas.height);
+      data.map((data: number[]) => {
+        ctx!.beginPath();
+        ctx!.moveTo(data[0] * canvas.width, data[1] * canvas.height);
+        ctx!.lineTo(data[2] * canvas.width, data[1] * canvas.height);
+        ctx!.lineTo(data[2] * canvas.width, data[3] * canvas.height);
+        ctx!.lineTo(data[0] * canvas.width, data[3] * canvas.height);
+        ctx!.lineTo(data[0] * canvas.width, data[1] * canvas.height);
+        ctx!.stroke();
+        ctx!.closePath();
+      });
+  }
   const test = async (device: WebcamInfo) => {
     const file = device.WebcamRef.current?.getScreenshot();
     const res = await fetch(
@@ -136,30 +148,7 @@ export default function Home() {
     console.log(data);
     if (res.status == 415) ErrorPopup(data);
     else {
-      const canvas = device.CanvasRef.current!;
-      canvas.width=device.WebcamRef.current!.video!.clientWidth
-      canvas.height=device.WebcamRef.current!.video!.clientHeight
-      const ctx = canvas.getContext("2d");
-      ctx!.clearRect(0, 0, canvas.width, canvas.height);
-      data.map((data: number[]) => {
-        ctx!.beginPath();
-        ctx!.moveTo(data[0] * canvas.width, data[1] * canvas.height);
-        ctx!.lineTo(
-          data[2] * canvas.width,
-          data[1] * canvas.height
-        );
-        ctx!.lineTo(
-          data[2] * canvas.width,
-          data[3] * canvas.height
-        );
-        ctx!.lineTo(
-          data[0] * canvas.width,
-          data[3] * canvas.height
-        );
-        ctx!.lineTo(data[0] * canvas.width, data[1] * canvas.height);
-        ctx!.stroke();
-        ctx!.closePath();
-      });
+      drawboxes(device, data);
     }
   };
   /*
@@ -238,7 +227,7 @@ export default function Home() {
               <div
                 className="hover:cursor-pointer bg-red-500 border border-black rounded-xl p-1 flex items-center justify-center hover:scale-125 transition-all"
                 onClick={() => {
-                  handleDevices(selectedDevice!.MediaData);
+                  handleDevices(selectedDevice!);
                   setIsRemoveOpen(!isRemoveOpen);
                 }}
               >
