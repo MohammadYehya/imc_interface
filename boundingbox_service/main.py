@@ -1,5 +1,5 @@
 from ultralytics import YOLO
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
@@ -34,3 +34,21 @@ async def get(cam_id: str, file: Request):
     img = Image.open(io.BytesIO(img))
     results = model(img, verbose=False)
     return [i.tolist() for i in results[0].boxes.xyxyn]
+
+@app.websocket("/ws")
+async def camerastream(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            file = await websocket.receive_text()
+            if file == {} or file == {'image':None}:
+                return
+            file = file['image']
+            if "data:image" in file:
+                file = file.split(",")[1]
+            img = base64.b64decode(file)
+            img = Image.open(io.BytesIO(img))
+            results = model(img, verbose=False)
+            await websocket.send_json({"predictions": [i.tolist() for i in results[0].boxes.xyxyn]})
+    except WebSocketDisconnect:
+        print("Client disconnected")
