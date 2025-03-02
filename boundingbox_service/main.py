@@ -49,6 +49,6 @@ async def camerastream(websocket: WebSocket):
             img = base64.b64decode(file)
             img = Image.open(io.BytesIO(img))
             results = model(img, verbose=False)
-            await websocket.send_json({"predictions": [i.tolist() for i in results[0].boxes.xyxyn]})
+            await websocket.send_json([i.tolist() for i in results[0].boxes.xyxyn])
     except WebSocketDisconnect:
         print("Client disconnected")
