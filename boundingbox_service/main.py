@@ -35,20 +35,18 @@ async def get(cam_id: str, file: Request):
     results = model(img, verbose=False)
     return [i.tolist() for i in results[0].boxes.xyxyn]
 
-@app.websocket("/ws")
-async def camerastream(websocket: WebSocket):
+@app.websocket("/ws/{cam_id}")
+async def camerastream(websocket: WebSocket, cam_id: str):
     await websocket.accept()
     try:
         while True:
             file = await websocket.receive_text()
-            if file == {} or file == {'image':None}:
-                return
-            file = file['image']
             if "data:image" in file:
                 file = file.split(",")[1]
             img = base64.b64decode(file)
             img = Image.open(io.BytesIO(img))
             results = model(img, verbose=False)
+            # print('Done', cam_id)
             await websocket.send_json([i.tolist() for i in results[0].boxes.xyxyn])
     except WebSocketDisconnect:
         print("Client disconnected")
