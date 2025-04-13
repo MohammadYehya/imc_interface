@@ -61,4 +61,4 @@ async def get(cam_id: str, file: Request):
     # with open(f"images/{uuid.uuid4()}.jpg", "wb") as f:
     #     f.write(img)
     
-    return {'cam_id': cam_id, 'condition': "NG1" if predicted_class == 0 else "OK1"}
+    return {'cam_id': cam_id, 'condition': "NG" if predicted_class == 0 else "OK"}

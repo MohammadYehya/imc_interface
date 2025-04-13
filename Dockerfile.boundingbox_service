@@ -1,6 +1,8 @@
 ARG PYTHON_VERSION=3.13.1
 FROM python:${PYTHON_VERSION}-slim as base
 
+RUN apt-get update && apt-get install -y --no-install-recommends libgl1-mesa-glx libglib2.0-0 && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY requirements.txt .

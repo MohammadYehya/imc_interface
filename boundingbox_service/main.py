@@ -35,8 +35,8 @@ async def get(cam_id: str, file: Request):
     results = model(img, verbose=False)
     return [i.tolist() for i in results[0].boxes.xyxyn]
 
-@app.websocket("/ws")
-async def camerastream(websocket: WebSocket):
+@app.websocket("/ws/{cam_id}")
+async def camerastream(websocket: WebSocket, cam_id: str):
     await websocket.accept()
     try:
         while True:

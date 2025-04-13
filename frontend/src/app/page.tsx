@@ -38,17 +38,29 @@ export default function Home() {
       useDevices
         .map((dev) => dev.MediaData.deviceId)
         .includes(device.MediaData.deviceId)
-    )
+    ) {
+      device.Socket?.close()
       setUseDevices(
         useDevices.filter(
           (dev) => device.MediaData.deviceId != dev.MediaData.deviceId
         )
       );
-    else setUseDevices(useDevices.concat([device]));
+    } else {
+      const ws = new WebSocket(`ws://${process.env.SERVICE2_PATH || 'localhost'}:8001/ws/${device.MediaData.deviceId}`);
+      ws.onopen = () => {console.log('Connected')}
+      ws.onmessage = async (event) => {
+        const data: [] = JSON.parse(event.data);
+        if (data.length != 0) 
+          await drawboxes(device, data)
+      };
+      ws.onclose = () => console.log("WebSocket closed");
+      device.Socket = ws;
+      setUseDevices(useDevices.concat([device]));
+    }
   };
 
   const handleAvailableDevices = React.useCallback(
-    (mediaDevices: MediaDeviceInfo[]) =>
+    (mediaDevices: MediaDeviceInfo[]) => {
       setDevices(
         mediaDevices
           .filter(({ kind }) => kind === "videoinput")
@@ -58,11 +70,29 @@ export default function Home() {
               WebcamRef: React.createRef(),
               CamLabel: dev.label,
               CanvasRef: React.createRef(),
+              Socket: undefined,
             };
           })
-      ),
+      );
+    },
     [setDevices]
   );
+
+  // const interval = setInterval(() => {
+  //   useDevices.map((device) => {
+  //     if (
+  //       device.WebcamRef.current &&
+  //       socket &&
+  //       socket.readyState === WebSocket.OPEN
+  //     ) {
+  //       const frame = device.WebcamRef.current.getScreenshot();
+  //       if (frame) {
+  //         socket.send(frame);
+  //       }
+  //     }
+  //   }, 500);
+  // });
+  // return () => clearInterval(interval);
 
   const getGridSize = () => {
     switch (Math.ceil(Math.sqrt(useDevices.length))) {
@@ -108,11 +138,9 @@ export default function Home() {
         })
       ).then((data) => {
         setModelData(
-          modelData?.concat(
-            data.map((data) => {
-              return { data: data, time: new Date().toLocaleTimeString() };
-            })
-          )
+          data.map((data) => {
+            return { data: data, time: new Date().toLocaleTimeString() };
+          }).concat(modelData)
         );
       });
   };
@@ -122,35 +150,58 @@ export default function Home() {
     canvas.width = device.WebcamRef.current!.video!.clientWidth;
     canvas.height = device.WebcamRef.current!.video!.clientHeight;
     const ctx = canvas.getContext("2d");
-    ctx!.clearRect(0, 0, canvas.width, canvas.height);
+    // ctx!.clearRect(0, 0, canvas.width, canvas.height);
     data.map((data: number[]) => {
+      ctx!.lineWidth = 2;
+      ctx!.strokeStyle = 'red';
       ctx!.beginPath();
-      ctx!.moveTo(data[0] * canvas.width, data[1] * canvas.height);
-      ctx!.lineTo(data[2] * canvas.width, data[1] * canvas.height);
-      ctx!.lineTo(data[2] * canvas.width, data[3] * canvas.height);
-      ctx!.lineTo(data[0] * canvas.width, data[3] * canvas.height);
-      ctx!.lineTo(data[0] * canvas.width, data[1] * canvas.height);
-      ctx!.stroke();
-      ctx!.closePath();
+      // ctx!.moveTo(data[0] * canvas.width, data[1] * canvas.height);
+      // ctx!.lineTo(data[2] * canvas.width, data[1] * canvas.height);
+      // ctx!.lineTo(data[2] * canvas.width, data[3] * canvas.height);
+      // ctx!.lineTo(data[0] * canvas.width, data[3] * canvas.height);
+      // ctx!.lineTo(data[0] * canvas.width, data[1] * canvas.height);
+      // ctx!.stroke();
+      // ctx!.closePath();
+      ctx!.strokeRect(data[0] * canvas.width,  data[1] * canvas.height, (data[2]-data[0]) * canvas.width, (data[3]-data[1]) * canvas.height)
     });
   };
-  const test = async (device: WebcamInfo) => {
-    const file = device.WebcamRef.current?.getScreenshot();
-    const res = await fetch(
-      `/api/getboxes?cam_id=${device.MediaData.deviceId}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: file }),
+  // const test = async (device: WebcamInfo) => {
+  //   const file = device.WebcamRef.current?.getScreenshot();
+  //   const res = await fetch(
+  //     `/api/getboxes?cam_id=${device.MediaData.deviceId}`,
+  //     {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ image: file }),
+  //     }
+  //   );
+  //   const data = await res.json();
+  //   console.log(data);
+  //   if (res.status == 415) ErrorPopup(data);
+  //   else {
+  //     await drawboxes(device, data);
+  //   }
+  // };
+
+  const interval = setInterval(() => {
+    // console.log('Now');
+    useDevices.map((device) => {
+      if (
+        device.WebcamRef.current &&
+        device.Socket &&
+        device.Socket.readyState === WebSocket.OPEN
+      ) {
+        const frame = device.WebcamRef.current.getScreenshot();
+        if (frame) {
+          device.Socket.send(frame);
+        }
       }
-    );
-    const data = await res.json();
-    console.log(data);
-    if (res.status == 415) ErrorPopup(data);
-    else {
-      drawboxes(device, data);
-    }
-  };
+    })
+  }, 1000)
+
+  React.useEffect(() => {
+    return () => {clearInterval(interval)}
+  }, [interval])
   /*
   - Add overlay of OK & NG
 
@@ -317,7 +368,7 @@ export default function Home() {
                           deviceId: device.MediaData.deviceId,
                           aspectRatio: screen.width / screen.height,
                         }}
-                        onClick={async () => test(device)}
+                        onClick={async () => fetchData(device)}
                         screenshotFormat="image/jpeg"
                         ref={device.WebcamRef}
                       />
@@ -368,18 +419,18 @@ export default function Home() {
           >
             Scan
           </div>
-          <div className="w-full h-1/2">
+          {/* <div className="w-full h-1/2">
             <div className="flex flex-col items-center border h-full w-full rounded-xl my-2">
               Vehicle ID
               <Separator className="bg-gray-600" />
               -- -- --
             </div>
-          </div>
-          <div className="w-full h-1/2">
+          </div> */}
+          <div className="w-full h-[calc(100%-64px)]">
             <div className="flex flex-col items-center border h-full w-full rounded-xl my-2">
               Model Logs
               <Separator className="bg-gray-600" />
-              <ScrollArea className="h-auto text-base w-full p-2">
+              <ScrollArea className="h-[100%] text-base w-full p-2">
                 {modelData?.length === 0 ? (
                   <div className="flex italic text-gray-400 justify-center">
                     No logs yet.
@@ -405,13 +456,13 @@ export default function Home() {
               </ScrollArea>
             </div>
           </div>
-          <button
+          {/* <button
             className="flex justify-center items-center border h-8 w-full rounded-xl hover:bg-white hover:text-black transition-all hover:scale-110"
             onClick={() => setUseDevices(useDevices.concat([devices[0]]))}
             // onClick={() => {fetch('/api/predict')}}
           >
             Test
-          </button>
+          </button> */}
         </div>
       </div>
     </>

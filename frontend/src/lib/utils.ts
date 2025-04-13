@@ -21,4 +21,5 @@ export interface WebcamInfo {
   WebcamRef: React.RefObject<Webcam | null>;
   CamLabel: string;
   CanvasRef: React.RefObject<HTMLCanvasElement | null>;
+  Socket: WebSocket | undefined;
 }
