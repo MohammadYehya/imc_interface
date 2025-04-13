@@ -217,6 +217,45 @@ export default function Home() {
     navigator.mediaDevices.enumerateDevices().then(handleAvailableDevices);
   }, [handleAvailableDevices]);
 
+  const [socket, setSocket] = React.useState<WebSocket>();
+  React.useEffect(() => {
+    const ws = new WebSocket(`ws://localhost:8001/ws`);
+
+    ws.onopen = () => console.log(`WebSocket connected`);
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      drawboxes(useDevices[0], data)
+      // console.log(data)
+    };
+    ws.onclose = () => console.log(`WebSocket closed`);
+
+    setSocket(ws);
+
+    return () => {
+      ws.close();
+    };
+  }, [useDevices]);
+
+  // const interval =
+   setInterval(() => {
+    useDevices.map((device) => {
+      if (
+        device.WebcamRef.current &&
+        socket &&
+        socket.readyState === WebSocket.OPEN
+      ) {
+        const frame = device.WebcamRef.current.getScreenshot();
+        if (frame) {
+          socket.send(frame);
+        }
+      }
+    }, 5000);
+  });
+  
+  // React.useEffect(() => {
+  //   return () => clearInterval(interval);
+  // }, [socket]);
+
   return (
     <>
       <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>

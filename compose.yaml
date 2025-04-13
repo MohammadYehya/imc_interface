@@ -33,5 +33,7 @@ services:
       - 8001:8001
     networks:
       - app_network
+
+      
 networks:
   app_network:
