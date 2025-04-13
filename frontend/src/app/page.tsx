@@ -119,21 +119,21 @@ export default function Home() {
 
   const drawboxes = async (device: WebcamInfo, data: number[][]) => {
     const canvas = device.CanvasRef.current!;
-      canvas.width = device.WebcamRef.current!.video!.clientWidth;
-      canvas.height = device.WebcamRef.current!.video!.clientHeight;
-      const ctx = canvas.getContext("2d");
-      ctx!.clearRect(0, 0, canvas.width, canvas.height);
-      data.map((data: number[]) => {
-        ctx!.beginPath();
-        ctx!.moveTo(data[0] * canvas.width, data[1] * canvas.height);
-        ctx!.lineTo(data[2] * canvas.width, data[1] * canvas.height);
-        ctx!.lineTo(data[2] * canvas.width, data[3] * canvas.height);
-        ctx!.lineTo(data[0] * canvas.width, data[3] * canvas.height);
-        ctx!.lineTo(data[0] * canvas.width, data[1] * canvas.height);
-        ctx!.stroke();
-        ctx!.closePath();
-      });
-  }
+    canvas.width = device.WebcamRef.current!.video!.clientWidth;
+    canvas.height = device.WebcamRef.current!.video!.clientHeight;
+    const ctx = canvas.getContext("2d");
+    ctx!.clearRect(0, 0, canvas.width, canvas.height);
+    data.map((data: number[]) => {
+      ctx!.beginPath();
+      ctx!.moveTo(data[0] * canvas.width, data[1] * canvas.height);
+      ctx!.lineTo(data[2] * canvas.width, data[1] * canvas.height);
+      ctx!.lineTo(data[2] * canvas.width, data[3] * canvas.height);
+      ctx!.lineTo(data[0] * canvas.width, data[3] * canvas.height);
+      ctx!.lineTo(data[0] * canvas.width, data[1] * canvas.height);
+      ctx!.stroke();
+      ctx!.closePath();
+    });
+  };
   const test = async (device: WebcamInfo) => {
     const file = device.WebcamRef.current?.getScreenshot();
     const res = await fetch(
@@ -165,6 +165,45 @@ export default function Home() {
   React.useEffect(() => {
     navigator.mediaDevices.enumerateDevices().then(handleAvailableDevices);
   }, [handleAvailableDevices]);
+
+  const [socket, setSocket] = React.useState<WebSocket>();
+  React.useEffect(() => {
+    const ws = new WebSocket(`ws://localhost:8001/ws`);
+
+    ws.onopen = () => console.log(`WebSocket connected`);
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      drawboxes(useDevices[0], data)
+      // console.log(data)
+    };
+    ws.onclose = () => console.log(`WebSocket closed`);
+
+    setSocket(ws);
+
+    return () => {
+      ws.close();
+    };
+  }, [useDevices]);
+
+  // const interval =
+   setInterval(() => {
+    useDevices.map((device) => {
+      if (
+        device.WebcamRef.current &&
+        socket &&
+        socket.readyState === WebSocket.OPEN
+      ) {
+        const frame = device.WebcamRef.current.getScreenshot();
+        if (frame) {
+          socket.send(frame);
+        }
+      }
+    }, 5000);
+  });
+  
+  // React.useEffect(() => {
+  //   return () => clearInterval(interval);
+  // }, [socket]);
 
   return (
     <>
