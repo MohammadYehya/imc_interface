@@ -39,22 +39,22 @@ export default function Home() {
         .map((dev) => dev.MediaData.deviceId)
         .includes(device.MediaData.deviceId)
     ) {
-      device.Socket?.close()
+      // device.Socket?.close()
       setUseDevices(
         useDevices.filter(
           (dev) => device.MediaData.deviceId != dev.MediaData.deviceId
         )
       );
     } else {
-      const ws = new WebSocket(`ws://${process.env.SERVICE2_PATH || 'localhost'}:8001/ws/${device.MediaData.deviceId}`);
-      ws.onopen = () => {console.log('Connected')}
-      ws.onmessage = async (event) => {
-        const data: [] = JSON.parse(event.data);
-        if (data.length != 0) 
-          await drawboxes(device, data)
-      };
-      ws.onclose = () => console.log("WebSocket closed");
-      device.Socket = ws;
+      // const ws = new WebSocket(`ws://${process.env.SERVICE2_PATH || 'localhost'}:8001/ws/${device.MediaData.deviceId}`);
+      // ws.onopen = () => {console.log('Connected')}
+      // ws.onmessage = async (event) => {
+      //   const data: [] = JSON.parse(event.data);
+      //   if (data.length != 0) 
+      //     await drawboxes(device, data)
+      // };
+      // ws.onclose = () => console.log("WebSocket closed");
+      // device.Socket = ws;
       setUseDevices(useDevices.concat([device]));
     }
   };
@@ -70,7 +70,7 @@ export default function Home() {
               WebcamRef: React.createRef(),
               CamLabel: dev.label,
               CanvasRef: React.createRef(),
-              Socket: undefined,
+              // Socket: undefined,
             };
           })
       );
