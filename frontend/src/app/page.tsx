@@ -39,7 +39,7 @@ export default function Home() {
         .map((dev) => dev.MediaData.deviceId)
         .includes(device.MediaData.deviceId)
     ) {
-      device.Socket?.close()
+      // device.Socket?.close()
       setUseDevices(
         useDevices.filter(
           (dev) => device.MediaData.deviceId != dev.MediaData.deviceId
