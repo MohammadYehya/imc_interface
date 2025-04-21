@@ -102,9 +102,7 @@ export default function Home() {
     if (res.status == 415) ErrorPopup(data);
     else
       setModelData(
-        modelData?.concat([
-          { data: data, time: new Date().toLocaleTimeString() },
-        ])
+        [{ data: data, time: new Date().toLocaleTimeString() }].concat(modelData)
       );
   };
   const fetchAll = async () => {
