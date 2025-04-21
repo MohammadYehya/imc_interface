@@ -70,7 +70,7 @@ export default function Home() {
               WebcamRef: React.createRef(),
               CamLabel: dev.label,
               CanvasRef: React.createRef(),
-              // Socket: undefined,
+              ModelValue: "",
             };
           })
       );
