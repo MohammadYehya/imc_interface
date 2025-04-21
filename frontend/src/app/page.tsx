@@ -306,6 +306,7 @@ export default function Home() {
                         width={0}
                         height={0}
                       />
+                      <div className={`fixed flex items-end justify-end font-black text-5xl ${device.ModelValue === "NG"? "text-red-500": "text-green-500"}`} style={{height:device.WebcamRef.current?.video?.clientHeight,width:device.WebcamRef.current?.video?.clientWidth}}>{device.ModelValue}</div>
                       <Webcam
                         className="h-full w-full"
                         audio={false}
