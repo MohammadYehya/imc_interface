@@ -147,23 +147,6 @@ export default function Home() {
       ctx!.strokeRect(data[0] * canvas.width,  data[1] * canvas.height, (data[2]-data[0]) * canvas.width, (data[3]-data[1]) * canvas.height)
     });
   };
-  // const test = async (device: WebcamInfo) => {
-  //   const file = device.WebcamRef.current?.getScreenshot();
-  //   const res = await fetch(
-  //     `/api/getboxes?cam_id=${device.MediaData.deviceId}`,
-  //     {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ image: file }),
-  //     }
-  //   );
-  //   const data = await res.json();
-  //   console.log(data);
-  //   if (res.status == 415) ErrorPopup(data);
-  //   else {
-  //     await drawboxes(device, data);
-  //   }
-  // };
 
   const interval = setInterval(() => {
     // console.log('Now');
