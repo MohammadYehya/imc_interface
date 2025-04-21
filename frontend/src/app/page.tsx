@@ -201,26 +201,6 @@ export default function Home() {
     };
   }, [useDevices]);
 
-  // const interval =
-   setInterval(() => {
-    useDevices.map((device) => {
-      if (
-        device.WebcamRef.current &&
-        socket &&
-        socket.readyState === WebSocket.OPEN
-      ) {
-        const frame = device.WebcamRef.current.getScreenshot();
-        if (frame) {
-          socket.send(frame);
-        }
-      }
-    }, 5000);
-  });
-  
-  // React.useEffect(() => {
-  //   return () => clearInterval(interval);
-  // }, [socket]);
-
   return (
     <>
       <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
