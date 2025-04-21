@@ -78,22 +78,6 @@ export default function Home() {
     [setDevices]
   );
 
-  // const interval = setInterval(() => {
-  //   useDevices.map((device) => {
-  //     if (
-  //       device.WebcamRef.current &&
-  //       socket &&
-  //       socket.readyState === WebSocket.OPEN
-  //     ) {
-  //       const frame = device.WebcamRef.current.getScreenshot();
-  //       if (frame) {
-  //         socket.send(frame);
-  //       }
-  //     }
-  //   }, 500);
-  // });
-  // return () => clearInterval(interval);
-
   const getGridSize = () => {
     switch (Math.ceil(Math.sqrt(useDevices.length))) {
       case 1:
