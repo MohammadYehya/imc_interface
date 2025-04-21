@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 import base64
+import json
 import io
 
 model = YOLO("./best.pt")
@@ -35,17 +36,21 @@ async def get(cam_id: str, file: Request):
     results = model(img, verbose=False)
     return [i.tolist() for i in results[0].boxes.xyxyn]
 
-@app.websocket("/ws/{cam_id}")
-async def camerastream(websocket: WebSocket, cam_id: str):
+@app.websocket("/ws")
+async def camerastream(websocket: WebSocket):
     await websocket.accept()
     try:
         while True:
             file = await websocket.receive_text()
-            if "data:image" in file:
-                file = file.split(",")[1]
-            img = base64.b64decode(file)
-            img = Image.open(io.BytesIO(img))
-            results = model(img, verbose=False)
-            await websocket.send_json([i.tolist() for i in results[0].boxes.xyxyn])
+            frames = json.loads(file)
+            results = []
+            for frame in frames:
+                if "data:image" in frame:
+                    frame = frame.split(",")[1]
+                img = base64.b64decode(frame)
+                img = Image.open(io.BytesIO(img))
+                res = model(img, verbose=False)
+                results.append(res)
+            await websocket.send_json([[i.tolist() for i in res[0].boxes.xyxyn] for res in results])
     except WebSocketDisconnect:
         print("Client disconnected")
