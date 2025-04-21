@@ -149,19 +149,14 @@ export default function Home() {
   };
 
   const interval = setInterval(() => {
-    // console.log('Now');
-    useDevices.map((device) => {
-      if (
-        device.WebcamRef.current &&
-        device.Socket &&
-        device.Socket.readyState === WebSocket.OPEN
-      ) {
-        const frame = device.WebcamRef.current.getScreenshot();
-        if (frame) {
-          device.Socket.send(frame);
-        }
-      }
-    })
+    if (
+      useDevices.length > 0 &&
+      socket &&
+      socket.readyState === WebSocket.OPEN
+    ) {
+      const frames = useDevices.map(device => device.WebcamRef.current?.getScreenshot()).filter(frame => typeof(frame) === "string");
+      socket.send(JSON.stringify(frames))
+    }
   }, 1000)
 
   React.useEffect(() => {
