@@ -184,7 +184,7 @@ export default function Home() {
 
   const [socket, setSocket] = React.useState<WebSocket>();
   React.useEffect(() => {
-    const ws = new WebSocket(`ws://localhost:8001/ws`);
+    const ws = new WebSocket(`ws://${process.env.SERVICE2_PATH || 'localhost'}:8001/ws`);
 
     ws.onopen = () => console.log(`WebSocket connected`);
     ws.onmessage = (event) => {
