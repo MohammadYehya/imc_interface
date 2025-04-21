@@ -1,7 +1,7 @@
 import asyncio
 import base64
 import io
-import uuid
+import datetime
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -58,7 +58,10 @@ async def get(cam_id: str, file: Request):
         outputs = model(pixel_values=input_tensor).logits
         predicted_class = torch.argmax(outputs, dim=1).item()
     # Store Images
-    # with open(f"images/{uuid.uuid4()}.jpg", "wb") as f:
-    #     f.write(img)
+    file_id = cam_id
+    for ch in '\\/:*?"<>| ':
+        file_id = file_id.replace(ch, "")
+    print(file_id)
+    img.save("../images/"+file_id+datetime.datetime.now().strftime("%d%m%Y,%H%M%S")+("NG" if predicted_class == 0 else "OK")+".jpg")
     
     return {'cam_id': cam_id, 'condition': "NG" if predicted_class == 0 else "OK"}
