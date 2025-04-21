@@ -119,6 +119,7 @@ export default function Home() {
           }).then((res) => res.json());
         })
       ).then((data) => {
+        setUseDevices(useDevices.map((device, index) => {device.ModelValue= data[index].condition;return device}))
         setModelData(
           data.map((data) => {
             return { data: data, time: new Date().toLocaleTimeString() };
@@ -184,8 +185,7 @@ export default function Home() {
     ws.onopen = () => console.log(`WebSocket connected`);
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      drawboxes(useDevices[0], data)
-      // console.log(data)
+      useDevices.forEach((device, index) => drawboxes(device, data[index]))
     };
     ws.onclose = () => console.log(`WebSocket closed`);
 
@@ -309,7 +309,7 @@ export default function Home() {
                           deviceId: device.MediaData.deviceId,
                           aspectRatio: screen.width / screen.height,
                         }}
-                        onClick={async () => fetchData(device)}
+                        // onClick={async () => fetchData(device)}
                         screenshotFormat="image/jpeg"
                         ref={device.WebcamRef}
                       />
